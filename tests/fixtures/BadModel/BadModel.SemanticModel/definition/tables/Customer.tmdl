@@ -1,0 +1,63 @@
+table Customer
+	lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f001000
+
+	measure 'Customer Count' = DISTINCTCOUNT(Customer[CustomerCode])
+		formatString: #,0
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f001101
+
+	column CustomerCode
+		dataType: string
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f001201
+		summarizeBy: none
+		sourceColumn: CustomerCode
+
+	column 'Customer Name'
+		dataType: string
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f001202
+		summarizeBy: none
+		sourceColumn: Customer Name
+
+	column Email
+		dataType: string
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f001203
+		summarizeBy: none
+		sourceColumn: Email
+
+	column Phone
+		dataType: string
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f001204
+		summarizeBy: none
+		sourceColumn: Phone
+
+	column Fax
+		dataType: string
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f001205
+		summarizeBy: none
+		sourceColumn: Fax
+
+	column Region
+		dataType: string
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f001206
+		summarizeBy: none
+		sourceColumn: Region
+
+	column Segment
+		dataType: string
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f001207
+		summarizeBy: none
+		sourceColumn: Segment
+
+	partition Customer = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database("PROD-SQL01.contoso.local", "CRM"),
+				    dbo_Customer = Source{[Schema="dbo",Item="Customer"]}[Data],
+				    Buffered = Table.Buffer(dbo_Customer),
+				    #"Added Index" = Table.AddIndexColumn(Buffered, "Index", 1, 1, Int64.Type),
+				    #"Filtered Active" = Table.SelectRows(#"Added Index", each [IsActive] = true),
+				    #"Removed Columns" = Table.RemoveColumns(#"Filtered Active", {"Index", "IsActive", "CreditLimit", "Notes"})
+				in
+				    #"Removed Columns"
+
+	annotation PBI_ResultType = Table

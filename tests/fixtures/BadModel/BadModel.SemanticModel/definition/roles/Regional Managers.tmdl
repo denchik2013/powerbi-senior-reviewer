@@ -1,0 +1,6 @@
+role 'Regional Managers'
+	modelPermission: read
+
+	tablePermission dim_store = 'dim_store'[Manager Email] = "anna.kowalski@contoso.com"
+
+	annotation PBI_Id = 7c1d2e3f4a5b4c6d8e9f0a1b2c3d4e5f

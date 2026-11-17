@@ -1,0 +1,175 @@
+table Sales
+	lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f000001
+
+	measure 'Total Sales' = SUMX(Sales, Sales[Quantity] * Sales[Unit Price])
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f000101
+
+	measure 'Sales Amount' = SUM(Sales[Line Total])
+		formatString: #,0
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f000102
+
+	measure 'Total Cost' = SUMX(Sales, Sales[Quantity] * Sales[Unit Cost])
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f000103
+
+	measure 'Total Revenue' = COUNTROWS(Sales)
+		formatString: \$#,0
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f000104
+
+	measure 'Margin %' = ([Total Sales] - [Total Cost]) / [Total Sales]
+		formatString: 0.0%
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f000105
+
+	measure avg_price = IFERROR([Total Sales] / SUM(Sales[Quantity]), 0)
+		formatString: #,0.00
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f000106
+
+	measure 'Bulk Sales' = CALCULATE([Total Sales], FILTER(Sales, Sales[Quantity] > 10))
+		formatString: #,0
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f000107
+
+	measure 'Avg Order Value' =
+			AVERAGEX(
+				Sales,
+				SUMX(
+					FILTER(Sales, Sales[OrderID] = EARLIER(Sales[OrderID])),
+					Sales[Quantity] * Sales[Unit Price]
+				)
+			)
+		formatString: #,0.00
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f000108
+
+	measure 'Sales 2023' = CALCULATE([Total Sales], 'Date'[Year] = 2023)
+		formatString: #,0
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f000109
+
+	measure 'Contoso Sales' = CALCULATE([Total Sales], Customer[Customer Name] = "Contoso Ltd")
+		formatString: #,0
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f000110
+
+	measure 'Sales % of Total' = DIVIDE([Total Sales], CALCULATE([Total Sales], ALL(Sales)))
+		formatString: 0.0%
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f000111
+
+	measure 'Sales Growth %' = ```
+			IF(
+			    CALCULATE([Total Sales], SAMEPERIODLASTYEAR('Date'[Date])) = 0,
+			    BLANK(),
+			    ([Total Sales] - CALCULATE([Total Sales], SAMEPERIODLASTYEAR('Date'[Date])))
+			        / CALCULATE([Total Sales], SAMEPERIODLASTYEAR('Date'[Date]))
+			)
+			```
+		formatString: 0.0%
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f000112
+
+	measure 'Discount Rate (old)' = DIVIDE(SUM(Sales[Discount]), [Total Sales])
+		formatString: 0.0%
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f000113
+
+	column OrderID
+		dataType: int64
+		formatString: 0
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f000201
+		summarizeBy: sum
+		sourceColumn: OrderID
+
+		annotation SummarizationSetBy = Automatic
+
+	column OrderDateTime
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f000202
+		summarizeBy: none
+		sourceColumn: OrderDateTime
+
+	column OrderDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f000203
+		summarizeBy: none
+		sourceColumn: OrderDate
+
+		variation Variation
+			isDefault
+			relationship: 5b1f0000-0000-4000-8000-000000000007
+			defaultHierarchy: 'LocalDateTable_6c2e1b0e-4f3a-4b8e-9d51-7a0c9e2f1b11'.'Date Hierarchy'
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column ShipDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f000204
+		summarizeBy: none
+		sourceColumn: ShipDate
+
+	column customer_code
+		dataType: string
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f000205
+		summarizeBy: none
+		sourceColumn: customer_code
+
+	column ProductKey
+		dataType: int64
+		formatString: 0
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f000206
+		summarizeBy: sum
+		sourceColumn: ProductKey
+
+	column StoreKey
+		dataType: int64
+		formatString: 0
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f000207
+		summarizeBy: none
+		sourceColumn: StoreKey
+
+	column Quantity
+		dataType: int64
+		formatString: #,0
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f000208
+		summarizeBy: sum
+		sourceColumn: Quantity
+
+	column 'Unit Price'
+		dataType: double
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f000209
+		summarizeBy: sum
+		sourceColumn: Unit Price
+
+	column 'Unit Cost'
+		dataType: double
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f000210
+		summarizeBy: sum
+		sourceColumn: Unit Cost
+
+	column Discount
+		dataType: double
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f000211
+		summarizeBy: sum
+		sourceColumn: Discount
+
+	column TransactionGUID
+		dataType: string
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f000212
+		summarizeBy: none
+		sourceColumn: TransactionGUID
+
+	column 'Line Total' = Sales[Quantity] * Sales[Unit Price]
+		dataType: double
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f000213
+		summarizeBy: sum
+
+	partition Sales = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("C:\Users\jdoe\OneDrive - Contoso\Data\Sales.xlsx"), null, true),
+				    Sales_Sheet = Source{[Item="Sales",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(Sales_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"OrderID", Int64.Type}, {"Quantity", Int64.Type}}),
+				    #"Filtered Rows" = Table.SelectRows(#"Changed Type", each [Quantity] <> null),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Filtered Rows",{{"Unit Price", type number}, {"OrderDateTime", type datetime}})
+				in
+				    #"Changed Type1"
+
+	annotation PBI_ResultType = Table

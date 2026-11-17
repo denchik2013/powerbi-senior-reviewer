@@ -1,0 +1,11 @@
+relationship 9e1a0000-0000-4000-8000-000000007001
+	fromColumn: Sales.CustomerKey
+	toColumn: Customer.CustomerKey
+
+relationship 9e1a0000-0000-4000-8000-000000007002
+	fromColumn: Sales.ProductKey
+	toColumn: Product.ProductKey
+
+relationship 9e1a0000-0000-4000-8000-000000007003
+	fromColumn: Sales.OrderDate
+	toColumn: Date.Date

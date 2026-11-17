@@ -1,0 +1,13 @@
+/// SQL Server host for the sales warehouse. Set per deployment stage.
+expression ServerName = "sql-dev.example.internal" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 9e1a0000-0000-4000-8000-000000000001
+	queryGroup: Parameters
+
+	annotation PBI_ResultType = Text
+
+/// Warehouse database name.
+expression DatabaseName = "SalesDW" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 9e1a0000-0000-4000-8000-000000000002
+	queryGroup: Parameters
+
+	annotation PBI_ResultType = Text

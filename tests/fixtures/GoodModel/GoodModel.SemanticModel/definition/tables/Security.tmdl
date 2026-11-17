@@ -1,0 +1,29 @@
+/// RLS mapping: which regions each user may see. Maintained in the warehouse.
+table Security
+	isHidden
+	lineageTag: 9e1a0000-0000-4000-8000-000000006000
+
+	column UserPrincipalName
+		dataType: string
+		isHidden
+		lineageTag: 9e1a0000-0000-4000-8000-000000006201
+		summarizeBy: none
+		sourceColumn: UserPrincipalName
+
+	column Region
+		dataType: string
+		isHidden
+		lineageTag: 9e1a0000-0000-4000-8000-000000006202
+		summarizeBy: none
+		sourceColumn: Region
+
+	partition Security = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database(ServerName, DatabaseName),
+				    UserRegion = Source{[Schema="sec",Item="UserRegion"]}[Data]
+				in
+				    UserRegion
+
+	annotation PBI_ResultType = Table

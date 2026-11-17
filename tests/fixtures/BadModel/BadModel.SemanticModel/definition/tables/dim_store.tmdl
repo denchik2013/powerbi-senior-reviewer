@@ -1,0 +1,38 @@
+table dim_store
+	lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f004000
+
+	column StoreKey
+		dataType: int64
+		formatString: 0
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f004201
+		summarizeBy: none
+		sourceColumn: StoreKey
+
+	column 'Store Name'
+		dataType: string
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f004202
+		summarizeBy: none
+		sourceColumn: Store Name
+
+	column Region
+		dataType: string
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f004203
+		summarizeBy: none
+		sourceColumn: Region
+
+	column 'Manager Email'
+		dataType: string
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f004204
+		summarizeBy: none
+		sourceColumn: Manager Email
+
+	partition dim_store = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("\\fileserver01\bi\stores.csv"), [Delimiter=",", Encoding=65001]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true])
+				in
+				    #"Promoted Headers"
+
+	annotation PBI_ResultType = Table

@@ -1,0 +1,44 @@
+table Product
+	lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f002000
+
+	column ProductKey
+		dataType: int64
+		formatString: 0
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f002201
+		summarizeBy: sum
+		sourceColumn: ProductKey
+
+	column 'Product Name'
+		dataType: string
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f002202
+		summarizeBy: none
+		sourceColumn: Product Name
+
+	column Category
+		dataType: string
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f002203
+		summarizeBy: none
+		sourceColumn: Category
+
+	column Color
+		dataType: string
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f002204
+		summarizeBy: none
+		sourceColumn: Color
+
+	column 'Legacy Code'
+		dataType: string
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f002205
+		summarizeBy: none
+		sourceColumn: Legacy Code
+
+	partition Product = m
+		mode: import
+		source =
+				let
+				    Source = Odbc.DataSource("dsn=Inventory;uid=report_user;pwd=Summer2024!", [HierarchicalNavigation=true]),
+				    Products = Source{[Name="Products",Kind="Table"]}[Data]
+				in
+				    Products
+
+	annotation PBI_ResultType = Table

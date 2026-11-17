@@ -1,0 +1,14 @@
+/// Sales staff see customers in the regions mapped to them in Security.
+role 'Regional Sales'
+	modelPermission: read
+
+	tablePermission Customer =
+			Customer[Region]
+			    IN CALCULATETABLE(
+			        VALUES(Security[Region]),
+			        Security[UserPrincipalName] = USERPRINCIPALNAME()
+			    )
+
+		columnPermission Email = none
+
+	tablePermission Security = Security[UserPrincipalName] = USERPRINCIPALNAME()

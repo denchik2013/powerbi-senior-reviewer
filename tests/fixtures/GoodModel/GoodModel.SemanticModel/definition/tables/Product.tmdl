@@ -1,0 +1,34 @@
+table Product
+	lineageTag: 9e1a0000-0000-4000-8000-000000004000
+
+	column ProductKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 9e1a0000-0000-4000-8000-000000004201
+		summarizeBy: none
+		sourceColumn: ProductKey
+
+	column 'Product Name'
+		dataType: string
+		lineageTag: 9e1a0000-0000-4000-8000-000000004202
+		summarizeBy: none
+		sourceColumn: ProductName
+
+	column Category
+		dataType: string
+		lineageTag: 9e1a0000-0000-4000-8000-000000004203
+		summarizeBy: none
+		sourceColumn: Category
+
+	partition Product = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database(ServerName, DatabaseName),
+				    DimProduct = Source{[Schema="dbo",Item="DimProduct"]}[Data],
+				    SelectedColumns = Table.SelectColumns(DimProduct, {"ProductKey", "ProductName", "Category"})
+				in
+				    SelectedColumns
+
+	annotation PBI_ResultType = Table

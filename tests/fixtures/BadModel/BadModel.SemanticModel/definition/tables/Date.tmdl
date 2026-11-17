@@ -1,0 +1,35 @@
+table Date
+	lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f003000
+
+	column Date
+		dataType: dateTime
+		isNameInferred
+		formatString: Long Date
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f003201
+		summarizeBy: none
+		sourceColumn: [Date]
+
+	column Year = YEAR('Date'[Date])
+		dataType: int64
+		formatString: 0
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f003202
+		summarizeBy: sum
+
+	column Month = FORMAT('Date'[Date], "MMM")
+		dataType: string
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f003203
+		summarizeBy: none
+		sortByColumn: 'Month Number'
+
+	column 'Month Number' = MONTH('Date'[Date])
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 0b6f5c1e-1a01-4c2b-9a10-5d2e8f003204
+		summarizeBy: none
+
+	partition Date = calculated
+		mode: import
+		source = CALENDARAUTO()
+
+	annotation PBI_Id = 3f0a1c2b9d8e4f5a8b7c6d5e4f3a2b1c

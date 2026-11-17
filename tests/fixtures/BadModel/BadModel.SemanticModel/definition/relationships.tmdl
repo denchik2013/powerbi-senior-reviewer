@@ -1,0 +1,32 @@
+relationship 5b1f0000-0000-4000-8000-000000000001
+	crossFilteringBehavior: bothDirections
+	fromColumn: Sales.customer_code
+	toColumn: Customer.CustomerCode
+
+relationship 5b1f0000-0000-4000-8000-000000000002
+	fromColumn: Sales.ProductKey
+	toColumn: Product.ProductKey
+
+relationship 5b1f0000-0000-4000-8000-000000000003
+	fromColumn: Sales.StoreKey
+	toColumn: dim_store.StoreKey
+
+relationship 5b1f0000-0000-4000-8000-000000000004
+	fromColumn: Sales.OrderDate
+	toColumn: Date.Date
+
+relationship 5b1f0000-0000-4000-8000-000000000005
+	isActive: false
+	fromColumn: Sales.ShipDate
+	toColumn: Date.Date
+
+relationship 5b1f0000-0000-4000-8000-000000000006
+	fromCardinality: many
+	toCardinality: many
+	fromColumn: FactBudget.Category
+	toColumn: Product.Category
+
+relationship 5b1f0000-0000-4000-8000-000000000007
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Sales.OrderDate
+	toColumn: 'LocalDateTable_6c2e1b0e-4f3a-4b8e-9d51-7a0c9e2f1b11'.Date

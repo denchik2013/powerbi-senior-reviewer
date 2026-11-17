@@ -1,0 +1,64 @@
+/// One row per sales order line.
+table Sales
+	lineageTag: 9e1a0000-0000-4000-8000-000000002000
+
+	column CustomerKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 9e1a0000-0000-4000-8000-000000002201
+		summarizeBy: none
+		sourceColumn: CustomerKey
+
+	column ProductKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 9e1a0000-0000-4000-8000-000000002202
+		summarizeBy: none
+		sourceColumn: ProductKey
+
+	column OrderDate
+		dataType: dateTime
+		isHidden
+		formatString: Short Date
+		lineageTag: 9e1a0000-0000-4000-8000-000000002203
+		summarizeBy: none
+		sourceColumn: OrderDate
+
+	column Quantity
+		dataType: int64
+		isHidden
+		formatString: #,0
+		lineageTag: 9e1a0000-0000-4000-8000-000000002204
+		summarizeBy: none
+		sourceColumn: Quantity
+
+	column 'Net Price'
+		dataType: decimal
+		isHidden
+		formatString: \$#,0.00
+		lineageTag: 9e1a0000-0000-4000-8000-000000002205
+		summarizeBy: none
+		sourceColumn: NetPrice
+
+	column 'Unit Cost'
+		dataType: decimal
+		isHidden
+		formatString: \$#,0.00
+		lineageTag: 9e1a0000-0000-4000-8000-000000002206
+		summarizeBy: none
+		sourceColumn: UnitCost
+
+	partition Sales = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database(ServerName, DatabaseName),
+				    FactSales = Source{[Schema="dbo",Item="FactSales"]}[Data],
+				    SelectedColumns = Table.SelectColumns(FactSales, {"CustomerKey", "ProductKey", "OrderDate", "Quantity", "NetPrice", "UnitCost"}),
+				    Typed = Table.TransformColumnTypes(SelectedColumns, {{"OrderDate", type date}, {"NetPrice", Currency.Type}, {"UnitCost", Currency.Type}})
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table

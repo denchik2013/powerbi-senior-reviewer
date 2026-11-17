@@ -1,0 +1,46 @@
+/// Calendar table, marked as the model date table.
+table Date
+	dataCategory: Time
+	lineageTag: 9e1a0000-0000-4000-8000-000000005000
+
+	column Date
+		dataType: dateTime
+		isKey
+		formatString: Short Date
+		lineageTag: 9e1a0000-0000-4000-8000-000000005201
+		summarizeBy: none
+		sourceColumn: Date
+
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: 9e1a0000-0000-4000-8000-000000005202
+		summarizeBy: none
+		sourceColumn: Year
+
+	column Month
+		dataType: string
+		lineageTag: 9e1a0000-0000-4000-8000-000000005203
+		summarizeBy: none
+		sourceColumn: Month
+		sortByColumn: 'Month Number'
+
+	column 'Month Number'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 9e1a0000-0000-4000-8000-000000005204
+		summarizeBy: none
+		sourceColumn: MonthNumber
+
+	partition Date = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database(ServerName, DatabaseName),
+				    DimDate = Source{[Schema="dbo",Item="DimDate"]}[Data],
+				    SelectedColumns = Table.SelectColumns(DimDate, {"Date", "Year", "Month", "MonthNumber"})
+				in
+				    SelectedColumns
+
+	annotation PBI_ResultType = Table

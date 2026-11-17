@@ -1,0 +1,66 @@
+/// Home table for all report measures.
+table _Measures
+	lineageTag: 9e1a0000-0000-4000-8000-000000001000
+
+	/// Net sales: quantity times net unit price, after discounts.
+	measure 'Sales Amount' = SUMX(Sales, Sales[Quantity] * Sales[Net Price])
+		formatString: \$#,0
+		displayFolder: Sales
+		lineageTag: 9e1a0000-0000-4000-8000-000000001101
+
+	/// Cost of goods sold: quantity times unit cost.
+	measure 'Total Cost' = SUMX(Sales, Sales[Quantity] * Sales[Unit Cost])
+		formatString: \$#,0
+		displayFolder: Sales
+		lineageTag: 9e1a0000-0000-4000-8000-000000001102
+
+	/// Gross margin in currency.
+	measure Margin = [Sales Amount] - [Total Cost]
+		formatString: \$#,0
+		displayFolder: Profitability
+		lineageTag: 9e1a0000-0000-4000-8000-000000001103
+
+	/// Gross margin as a share of net sales.
+	measure 'Margin %' = DIVIDE([Margin], [Sales Amount])
+		formatString: 0.0%
+		displayFolder: Profitability
+		lineageTag: 9e1a0000-0000-4000-8000-000000001104
+
+	/// Net sales for the same period in the previous year.
+	measure 'Sales PY' = CALCULATE([Sales Amount], SAMEPERIODLASTYEAR('Date'[Date]))
+		formatString: \$#,0
+		displayFolder: Time Intelligence
+		lineageTag: 9e1a0000-0000-4000-8000-000000001105
+
+	/// Year-over-year growth of net sales.
+	measure 'Sales YoY %' =
+			VAR CurrentSales = [Sales Amount]
+			VAR PriorSales = [Sales PY]
+			RETURN
+				DIVIDE(CurrentSales - PriorSales, PriorSales)
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: Time Intelligence
+		lineageTag: 9e1a0000-0000-4000-8000-000000001106
+
+	/// Number of sales order lines.
+	measure 'Order Lines' = COUNTROWS(Sales)
+		formatString: #,0
+		displayFolder: Volume
+		lineageTag: 9e1a0000-0000-4000-8000-000000001107
+
+	/// Distinct customers with at least one order line.
+	measure Customers = DISTINCTCOUNT(Sales[CustomerKey])
+		formatString: #,0
+		displayFolder: Volume
+		lineageTag: 9e1a0000-0000-4000-8000-000000001108
+
+	column Placeholder
+		isHidden
+		lineageTag: 9e1a0000-0000-4000-8000-000000001201
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Placeholder]
+
+	partition _Measures = calculated
+		mode: import
+		source = ROW("Placeholder", BLANK())
