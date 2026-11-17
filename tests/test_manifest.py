@@ -48,6 +48,8 @@ class ManifestTests(unittest.TestCase):
         desc = fields["description"]
         self.assertTrue(0 < len(desc) <= 1024, f"description length {len(desc)}")
         self.assertNotRegex(desc, r"<[^>]+>", "no XML/angle-bracket tags in description")
+        for bad in (": ", " #"):  # would break a YAML plain scalar
+            self.assertNotIn(bad, desc)
 
     def test_skill_md_is_small(self):
         lines = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8").count("\n")
@@ -57,6 +59,19 @@ class ManifestTests(unittest.TestCase):
         desc = read_frontmatter(SKILL_DIR / "SKILL.md")[0]["description"].lower()
         for term in ("review", "power bi", "pbip", "tmdl", "pbir", "dax", "pr", "semantic model", "best practices"):
             self.assertIn(term, desc)
+
+    def test_every_static_rule_is_documented(self):
+        import sys
+        sys.path.insert(0, str(SKILL_DIR / "scripts"))
+        from static_checks import RULES
+        docs = "".join(p.read_text(encoding="utf-8") for p in (SKILL_DIR / "references").glob("rules-*.md"))
+        missing = [rid for rid in RULES if f"### {rid} " not in docs]
+        self.assertEqual(missing, [])
+
+    def test_skill_md_links_existing_references(self):
+        body = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
+        for name in re.findall(r"`(?:references/)?((?:rules-[a-z-]+|custom-rules|review-template)\.md)`", body):
+            self.assertTrue((SKILL_DIR / "references" / name).exists(), name)
 
 
 if __name__ == "__main__":

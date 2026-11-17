@@ -953,11 +953,26 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--scope", help="scope.json from diff_scope.py (PR mode)")
     ap.add_argument("--disable", default="", help="comma-separated rule ids to skip")
     ap.add_argument("--list-rules", action="store_true")
+    ap.add_argument("--rescore", nargs="+", metavar="FINDINGS_JSON",
+                    help="recompute health scores from one or more findings files (static + judgment) and exit")
     ap.add_argument("-o", "--output")
     args = ap.parse_args(argv)
     if args.list_rules:
         for rid, (cat, sev, title) in RULES.items():
             print(f"{rid:7} {sev:8} {cat:12} {title}")
+        return 0
+    if args.rescore:
+        merged, has_report = [], False
+        for f in args.rescore:
+            data = json.loads(Path(f).read_text(encoding="utf-8"))
+            items = data["findings"] if isinstance(data, dict) else data
+            has_report = has_report or (isinstance(data, dict) and data.get("scores", {}).get("byCategory", {})
+                                        .get("Report") is not None)
+            merged += [x for x in items if not x.get("dropped")]
+        has_report = has_report or any(x.get("category") == "Report" for x in merged)
+        result = scores(merged, {"reports": [1] if has_report else []})
+        result["counts"] = {s: sum(1 for x in merged if x["severity"] == s) for s in SEVERITIES}
+        write_json(result, args.output)
         return 0
     if args.inventory:
         inv = json.loads(Path(args.inventory).read_text(encoding="utf-8"))
