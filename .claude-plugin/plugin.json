@@ -1,0 +1,14 @@
+{
+  "name": "powerbi-senior-reviewer",
+  "displayName": "Power BI Senior Reviewer",
+  "version": "0.1.0",
+  "description": "Senior-level code review for Power BI projects (PBIP: TMDL semantic model + PBIR report) and pull requests. Offline, stdlib-only deterministic checks plus expert judgment, with file:line evidence and ready-to-paste fixes.",
+  "author": {
+    "name": "Denys",
+    "url": "https://github.com/denchik2013"
+  },
+  "homepage": "https://github.com/denchik2013/powerbi-senior-reviewer",
+  "repository": "https://github.com/denchik2013/powerbi-senior-reviewer",
+  "license": "MIT",
+  "keywords": ["power-bi", "pbip", "tmdl", "pbir", "dax", "power-query", "code-review", "semantic-model", "best-practices"]
+}

@@ -1,0 +1,18 @@
+{
+  "name": "powerbi-senior-reviewer",
+  "description": "Senior Power BI reviewer skill for PBIP projects and pull requests.",
+  "owner": {
+    "name": "Denys",
+    "url": "https://github.com/denchik2013"
+  },
+  "plugins": [
+    {
+      "name": "powerbi-senior-reviewer",
+      "source": "./",
+      "description": "Senior-level code review for Power BI projects (PBIP) and pull requests: deterministic checks + expert judgment, file:line evidence, ready-to-paste fixes.",
+      "version": "0.1.0",
+      "category": "productivity",
+      "tags": ["power-bi", "code-review", "pbip", "dax"]
+    }
+  ]
+}
