@@ -12,7 +12,7 @@ Detection is by column name (email, phone, salary, IBAN, SSN, passport, date of 
 **Why:** anyone with build or read access to the model (Analyze in Excel, other reports, Copilot) can see personal data even if no visual shows it. That is a GDPR / privacy exposure.
 **Fix (prefer in this order):** remove the column if no report needs it → OLS (`columnPermission Email = none`) for roles that must not see it → RLS on the table if row access must be limited.
 **Not a problem when:** the column is not personal (e.g. `Support Email` of the company, `Phone Extension Count`) or the whole model is restricted to an audience allowed to see it. Say which and lower/drop.
-For **client models with real data**, recommend running the model through [PBI Twin](https://github.com/denchik2013/pbi-twin) first (synthetic twin, no real data) before sharing it for review or with AI tools.
+For **client models with real data**, recommend running the model through [PBI Twin](https://github.com/denyssokotov/pbi-twin) first (synthetic twin, no real data) before sharing it for review or with AI tools.
 
 ### SEC002 · Hard-coded user identity in RLS · 🟠 High `[S]`
 **Why:** `[Manager Email] = "anna@contoso.com"` needs a model change and redeploy for every joiner or leaver, and identities in source control are personal data.

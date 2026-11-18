@@ -5,7 +5,7 @@ license: MIT
 compatibility: Requires Python 3.10+ (standard library only) and git for PR mode. No network access.
 metadata:
   version: "0.1.0"
-  repository: https://github.com/denchik2013/powerbi-senior-reviewer
+  repository: https://github.com/denyssokotov/powerbi-senior-reviewer
 ---
 
 # Power BI Senior Reviewer

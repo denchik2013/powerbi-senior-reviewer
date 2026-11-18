@@ -12,7 +12,7 @@ Research date: 2026-11-17. Sources were the public repositories and official doc
 - **Plugin.** `.claude-plugin/plugin.json` (only `name` is required). Skills are auto-discovered from `skills/<name>/SKILL.md`.
 - **Marketplace.** `.claude-plugin/marketplace.json` with `name`, `owner`, `plugins[]`. A single repo can be both marketplace and plugin via `"source": "./"`. Install:
   ```
-  /plugin marketplace add denchik2013/powerbi-senior-reviewer
+  /plugin marketplace add denyssokotov/powerbi-senior-reviewer
   /plugin install powerbi-senior-reviewer@powerbi-senior-reviewer
   ```
 - **Validation.** `claude plugin validate .` (add `--strict` to fail on warnings).

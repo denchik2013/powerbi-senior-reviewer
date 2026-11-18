@@ -63,14 +63,14 @@ No linter flags that measure as wrong. Catching it takes knowing what "average o
 **Claude Code (plugin marketplace)**, one command each:
 
 ```
-/plugin marketplace add denchik2013/powerbi-senior-reviewer
+/plugin marketplace add denyssokotov/powerbi-senior-reviewer
 /plugin install powerbi-senior-reviewer@powerbi-senior-reviewer
 ```
 
 **Claude Code (manual)**: copy the skill folder into your personal skills:
 
 ```bash
-git clone https://github.com/denchik2013/powerbi-senior-reviewer
+git clone https://github.com/denyssokotov/powerbi-senior-reviewer
 cp -r powerbi-senior-reviewer/skills/powerbi-senior-reviewer ~/.claude/skills/
 ```
 
@@ -144,7 +144,7 @@ Turn off a built-in rule for a run: `static_checks.py --disable MOD006,GOV003`.
 - Claude reads your TMDL / PBIR files to write the review, the same as any code review in Claude Code. Your data is
   never read: PBIP stores metadata and M/DAX code, not rows (`.pbi/cache.abf` is ignored).
 - Secrets found in M code are masked (`pwd=***`) in every output.
-- **Reviewing a client's model?** Run it through [**PBI Twin**](https://github.com/denchik2013/pbi-twin) first: it creates an
+- **Reviewing a client's model?** Run it through [**PBI Twin**](https://github.com/denyssokotov/pbi-twin) first: it creates an
   anonymized twin of the model (same measures, relationships and report, fake data, 100% local), so you can review it
   or share it without exposing real data or names.
 
