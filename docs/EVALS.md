@@ -123,7 +123,7 @@ Results vary between runs (model sampling), so run at least three per fixture.
 2. `Customer[Segment]` removed. A drill-through table still uses it.
 3. A new measure `[Avg Line Value]` uses `/`.
 
-The prompt was "review my changes on this branch against main". The script that builds the scenario is in the session notes; it is reproducible by hand in a minute.
+The prompt was "review my changes on this branch against main". Reproduce with `tests/eval/pr_scenario.sh <empty dir>`.
 
 | Run | Margin semantic change | Broken visual (PR001) | `/` in new measure | Pre-existing issues flagged | PR_COMMENT.md | Project modified |
 |---|---|---|---|---|---|---|
