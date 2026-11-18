@@ -158,7 +158,7 @@ Measured on two fixtures in [`tests/fixtures`](tests/fixtures): `BadModel` with 
 | | Static scripts alone | Full skill (final version) | Target |
 |---|---|---|---|
 | Recall on BadModel, all 43 issues | 84% | **95% mean** (5 runs: 98 · 98 · 91 · 95 · 95) | ≥ 85% |
-| Recall, the 7 judgment-only issues (wrong logic, grain, RLS reach…) | 0% | **86% · 86% · 86%** | – |
+| Recall, the 7 judgment-only issues (wrong logic, grain, RLS reach…) | 0% | **83% mean** (6 of 7 in 4 of 5 runs) | – |
 | False findings on GoodModel | 0 | **0 in 5 of 5 runs** | ≤ 3 |
 | Findings citing a real `file:line` | 100% | **100%** | 100% |
 | Project files modified during review | – | **none** | none |
