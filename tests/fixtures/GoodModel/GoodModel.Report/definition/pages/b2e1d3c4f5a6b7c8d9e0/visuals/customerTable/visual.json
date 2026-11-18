@@ -37,11 +37,11 @@
                       "Entity": "Customer"
                     }
                   },
-                  "Property": "Email"
+                  "Property": "Region"
                 }
               },
-              "queryRef": "Customer.Email",
-              "nativeQueryRef": "Email"
+              "queryRef": "Customer.Region",
+              "nativeQueryRef": "Region"
             },
             {
               "field": {
@@ -93,11 +93,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Customers"
+                  "Property": "Margin %"
                 }
               },
-              "queryRef": "_Measures.Customers",
-              "nativeQueryRef": "Customers"
+              "queryRef": "_Measures.Margin %",
+              "nativeQueryRef": "Margin %"
             }
           ]
         }
@@ -123,7 +123,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Contact details, segment and sales for the selected customer'"
+                  "Value": "'Region, segment, sales and margin for the selected customer'"
                 }
               }
             }

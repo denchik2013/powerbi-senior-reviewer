@@ -49,8 +49,8 @@ python3 "$S/diff_scope.py" <base> [<head>] --path <project-folder> -o out/scope.
 python3 "$S/static_checks.py" --inventory out/inventory.json -o out/findings.json [--scope out/scope.json]
 ```
 
-`static_checks.py --list-rules` lists the rule ids. If `out/` is not git-ignored in the user's repo, mention it at the end
-(do not edit their `.gitignore` unless asked).
+`static_checks.py --list-rules` lists the rule ids. If `out/` is not git-ignored in the user's repo (check:
+`git check-ignore -q out/inventory.json` exits non-zero), mention it at the end (do not edit their `.gitignore` unless asked).
 
 If a script fails, report the error briefly and continue with manual review of the files: never invent output.
 
@@ -83,7 +83,8 @@ visuals and on the main pages.
 - **DAX102**: double counting or wrong grain: header values summed on line level, SUM where DISTINCTCOUNT is meant,
   averages of percentages, measures over many-to-many or coarser-grain tables.
 - **DAX105**: the same KPI computed by different formulas in different measures.
-- **DAX103 / DAX104**: time intelligence without a proper calendar; long expressions repeating sub-expressions without VAR.
+- **DAX103 / DAX104**: time intelligence without a proper calendar; the same sub-expression (e.g. a `CALCULATE(…PY…)`)
+  repeated without VAR: report DAX104 as its own finding even if a static rule also hits that measure.
 
 **Model.** MOD101 (star schema, fact-to-fact), MOD102 (ambiguous paths, role-playing dates), MOD103 (budget/target
 facts at a coarser grain than the dimensions they are sliced by).
@@ -111,7 +112,10 @@ Merge duplicates (same object, same root cause). Several instances of one proble
 Severity guide: 🔴 wrong numbers in a key KPI, data exposure, secrets, broken report · 🟠 likely wrong results or
 security gap, major performance cost · 🟡 real performance/maintainability cost · 🔵 hygiene · ⚪ style.
 
-Score with the script: `python3 "$S/static_checks.py" --rescore out/findings.json out/judgment.json`.
+**Always** write `out/judgment.json` (a JSON list; `[]` if you have no own findings and dropped nothing): one entry per
+judgment finding, one `dropped` entry per static finding you drop or supersede. Then score with the script, never by
+estimate: `python3 "$S/static_checks.py" --rescore out/findings.json out/judgment.json`. REVIEW.md shows that output.
+Line numbers are exact (from the scripts' JSON or from Read's line numbers): never `~15` or a range guess.
 
 ## 7. Write the review
 

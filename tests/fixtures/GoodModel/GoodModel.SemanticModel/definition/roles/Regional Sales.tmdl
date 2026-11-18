@@ -9,6 +9,4 @@ role 'Regional Sales'
 			        Security[UserPrincipalName] = USERPRINCIPALNAME()
 			    )
 
-		columnPermission Email = none
-
 	tablePermission Security = Security[UserPrincipalName] = USERPRINCIPALNAME()

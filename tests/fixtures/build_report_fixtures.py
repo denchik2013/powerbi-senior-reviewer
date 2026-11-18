@@ -215,11 +215,11 @@ def good() -> None:
               "pageBinding": {"name": "c3d4e5f6a7b8c9d0e1f2", "type": "Drillthrough",
                               "parameters": [{"name": "p1", "boundFilter": "f1", "fieldExpr": col(C, "Customer Name")}]}}
     detail_visuals = [
-        visual("customerTable", "tableEx", {"Values": [col(C, "Customer Name"), col(C, "Email"), col(C, "Segment"),
+        visual("customerTable", "tableEx", {"Values": [col(C, "Customer Name"), col(C, "Region"), col(C, "Segment"),
                                                        mea(M, "Sales Amount"), mea(M, "Order Lines"),
-                                                       mea(M, "Customers")]},
+                                                       mea(M, "Margin %")]},
                x=10, y=10, w=1250, h=500, title="Customer detail",
-               alt="Contact details, segment and sales for the selected customer"),
+               alt="Region, segment, sales and margin for the selected customer"),
     ]
     write_project("GoodModel", [(overview, visuals), (detail, detail_visuals)])
 

@@ -15,12 +15,6 @@ table Customer
 		summarizeBy: none
 		sourceColumn: CustomerName
 
-	column Email
-		dataType: string
-		lineageTag: 9e1a0000-0000-4000-8000-000000003203
-		summarizeBy: none
-		sourceColumn: Email
-
 	column Region
 		dataType: string
 		lineageTag: 9e1a0000-0000-4000-8000-000000003204
@@ -39,7 +33,7 @@ table Customer
 				let
 				    Source = Sql.Database(ServerName, DatabaseName),
 				    DimCustomer = Source{[Schema="dbo",Item="DimCustomer"]}[Data],
-				    SelectedColumns = Table.SelectColumns(DimCustomer, {"CustomerKey", "CustomerName", "Email", "Region", "Segment"})
+				    SelectedColumns = Table.SelectColumns(DimCustomer, {"CustomerKey", "CustomerName", "Region", "Segment"})
 				in
 				    SelectedColumns
 

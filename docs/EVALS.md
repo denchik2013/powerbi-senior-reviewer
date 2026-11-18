@@ -33,4 +33,84 @@ files. That fixed the PR collision with the built-in `code-review` skill.
 
 ## 2. Recall and false positives on fixtures
 
-Planned for stage 4: see `tests/expected-issues.md`.
+**Ground truth:** [`tests/expected-issues.md`](../tests/expected-issues.md). BadModel has 43 planted issues: 36 static
+(S, the scripts can find them; the reviewer must not drop them) and 7 judgment (J, only the reviewer can find them:
+a measure whose logic contradicts its name, wrong averaging grain, a duplicate KPI, budget grain mismatch, RLS reach,
+repeated sub-expressions, chart choice). GoodModel has none, so every kept finding counts as a false positive.
+
+**Method:** `tests/eval/run_eval.py` copies a fixture into a fresh git repo (with this repo's `.gitignore`), runs
+`claude -p "review my Power BI project" --plugin-dir <repo>` headless (edits allowed, so "did not modify the project" is
+actually tested), then `tests/eval/grade.py` scores the run from `out/findings.json` + `out/judgment.json`:
+
+- An issue is **found** when a kept finding has an accepted rule id (its own id, or one it cites, e.g. "per CUS009")
+  **and** matches the issue's anchor regex. Static findings the reviewer marked `dropped` do not count.
+- **Citations valid** means the cited file exists and the line lies inside it.
+- **Fixture modified** comes from `git status` outside `out/`.
+
+The grading is strict: a judgment finding that sits only in REVIEW.md prose, without an entry in `judgment.json`,
+does not count.
+
+**Baseline (scripts only, no Claude):** recall 36/43 = **84%** (S 100%, J 0%), GoodModel 0 findings.
+
+### Round 1 (2026-11-18): first SKILL.md
+
+| Run | Recall | S | J | Kept findings | Citations valid | Project modified | Missed |
+|---|---|---|---|---|---|---|---|
+| bad1 | 42/43 = 98% | 36/36 | 6/7 | 54 | 54/54 | no | B25 DAX104 |
+| bad2 | 41/43 = 95% | 36/36 | 5/7 | 53 | 53/53 | no | B25 DAX104, B35 RPT103 |
+| bad3 | 36/43 = 84% | 36/36 | 0/7 | 48 | 48/48 | no | all 7 J |
+| good1 | – | – | – | **2** | 2/2 | no | – |
+| good2 | – | – | – | **0** | – | no | – |
+
+(Round-1 runs were re-graded with the final grader. The first grader also counted the runner's own transcript as a
+project change; that bug is fixed.)
+
+What we learned and changed:
+
+1. **bad3 found the judgment issues but skipped the process.** Its REVIEW.md correctly called out Total Revenue,
+   Avg Order Value, Budget vs Actual and DAX104, but it wrote no `judgment.json`, never re-scored, and cited lines as
+   `Sales.tmdl:~15`. SKILL.md now requires `judgment.json` (even `[]`), a script-computed score, and exact line numbers.
+2. **good1's two "false positives" were real defects in the GoodModel fixture.** A drill-through table showed
+   `Customer[Email]` while the RLS role hid that column with OLS, so the visual breaks for those users. The same table
+   also had a `[Customers]` measure that is always 1 per customer row. We fixed the fixture (dropped the unneeded
+   personal-data column and the measure) instead of loosening the reviewer. The defects were good catches, and the
+   GoodModel fixture now meets the bar it claims to.
+3. **DAX104 (repeated sub-expression) was folded into the DAX002 fix** and never reported on its own. SKILL.md now says
+   to report it separately.
+4. **Merged findings.** Reviewers sometimes merge two issues into one finding ("SEC101 … per CUS009"). The grader
+   accepts rule ids cited in the message.
+
+### Round 2 (2026-11-18): final SKILL.md
+
+| Run | Recall | S | J | Kept findings | Citations valid | Project modified | Missed |
+|---|---|---|---|---|---|---|---|
+| bad1 | 42/43 = **98%** | 36/36 | 6/7 | 54 | 54/54 | no | B35 RPT103 |
+| bad2 | 42/43 = **98%** | 36/36 | 6/7 | 56 | 56/56 | no | B35 RPT103 |
+| bad3 | 39/43 = **91%** | 33/36 | 6/7 | 48 | 48/48 | no | B04 DAX006, B08 SEC101, B39 DAX008, B41 MOD007 |
+| good1 | – | – | – | **0** | – | no | – |
+| good2 | – | – | – | **0** | – | no | – |
+| good3 | – | – | – | **0** | – | no | – |
+
+**Result: mean recall 96% (target ≥ 85%, every run met it), judgment recall 86% in every run, 0 false findings on
+GoodModel in 3/3 runs (target ≤ 3), 100% valid citations, project never modified.** Each run took 1–1.5 minutes.
+
+Notes on round 2:
+
+- **bad3's misses were mostly deliberate merges, not blind spots.** DAX006 was merged into the DAX102 finding on the same
+  measure (`Avg Order Value`). DAX008 was replaced by a sharper DAX102: `ALL(Sales)` leaves Product, Customer and Date
+  slicers in the denominator. The RLS-reach issue (B08) is described inside the CUS009 finding ("the role filters only
+  dim_store, so FactBudget…") without citing SEC101. Only the MOD007 drop ("superseded") is a real miss. We kept the
+  grader strict and did not count these as found.
+- **The pie chart by product name (RPT103) is the least stable judgment item.** One run in three reported it as its
+  own finding; the others mention it in passing or not at all. It is low severity, so we left it.
+- **Sample:** run bad2 is published unedited as [`examples/sample-review.md`](../examples/sample-review.md).
+
+### Reproduce
+
+```bash
+python tests/eval/run_eval.py --fixture bad  --workdir /tmp/pbi-eval/bad1
+python tests/eval/run_eval.py --fixture good --workdir /tmp/pbi-eval/good1
+python tests/eval/grade.py /tmp/pbi-eval/bad1 --fixture bad      # re-grade an existing run
+```
+
+Results vary between runs (model sampling), so run at least three per fixture.

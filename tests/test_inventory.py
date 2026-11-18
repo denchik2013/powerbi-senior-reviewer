@@ -16,6 +16,15 @@ class InventoryTests(unittest.TestCase):
     def table(self, inv, name):
         return next(t for t in inv["models"][0]["tables"] if t["name"] == name)
 
+    def test_role_column_permissions(self):
+        from pbip_inventory import _role
+        from tmdl_parser import parse_tmdl
+        text = ("role 'Sales'\n\tmodelPermission: read\n\n\ttablePermission Customer = TRUE()\n\n"
+                "\t\tcolumnPermission Email = none\n")
+        role = _role(parse_tmdl(text)[0], "roles/Sales.tmdl")
+        self.assertEqual(role["columnPermissions"][0]["column"], "Email")
+        self.assertEqual(role["columnPermissions"][0]["table"], "Customer")
+
     def test_discovers_model_and_report_and_links_them(self):
         self.assertEqual(len(self.bad["models"]), 1)
         self.assertEqual(len(self.bad["reports"]), 1)
@@ -53,7 +62,7 @@ class InventoryTests(unittest.TestCase):
         inactive = [r for r in self.bad["models"][0]["relationships"] if not r["isActive"]]
         self.assertEqual(len(inactive), 1)
         role = self.good["models"][0]["roles"][0]
-        self.assertEqual(role["columnPermissions"][0]["column"], "Email")
+        self.assertEqual(role["columnPermissions"], [])
         self.assertIn("USERPRINCIPALNAME()", role["tablePermissions"][0]["expression"])
         exprs = self.good["models"][0]["expressions"]
         self.assertTrue(all(e["isParameter"] for e in exprs))
