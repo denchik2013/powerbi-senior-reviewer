@@ -176,6 +176,15 @@ not pattern-matchable.
 [security](skills/powerbi-senior-reviewer/references/rules-security.md) ·
 [governance & PR](skills/powerbi-senior-reviewer/references/rules-governance.md).
 
+## Limitations
+
+- TMDL only for the model (a TMSL `model.bim` gets a warning and a manual review); the legacy `report.json` report
+  format is parsed partially.
+- Judgment findings vary a little between runs, like any reviewer; low-severity design remarks are the least stable.
+- `out/inventory.json` keeps raw M code (secrets are masked in findings and reviews, not in this local working file):
+  keep `out/` git-ignored.
+- No data volumes are read, so performance findings rank by pattern, not by measured cost.
+
 ## Roadmap
 
 - TMSL (`model.bim`) parsing and fuller legacy `report.json` support.

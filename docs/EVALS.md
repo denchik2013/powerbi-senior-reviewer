@@ -114,3 +114,23 @@ python tests/eval/grade.py /tmp/pbi-eval/bad1 --fixture bad      # re-grade an e
 ```
 
 Results vary between runs (model sampling), so run at least three per fixture.
+
+## 3. PR mode (end to end)
+
+**Setup:** GoodModel on `main`; a branch with three planted changes:
+
+1. `[Margin]` changed from `[Sales Amount] - [Total Cost]` to `/`. It is still described and formatted as currency, and it feeds `[Margin %]` and 3 visuals.
+2. `Customer[Segment]` removed. A drill-through table still uses it.
+3. A new measure `[Avg Line Value]` uses `/`.
+
+The prompt was "review my changes on this branch against main". The script that builds the scenario is in the session notes; it is reproducible by hand in a minute.
+
+| Run | Margin semantic change | Broken visual (PR001) | `/` in new measure | Pre-existing issues flagged | PR_COMMENT.md | Project modified |
+|---|---|---|---|---|---|---|
+| pr1 (before checklist) | ✅ (as DAX101) | ✅ | ✅ | none | ❌ skipped, free-form REVIEW.md | no |
+| pr2 | ✅ DAX106, names `[Margin %]` + 3 visuals | ✅ | ✅ | none | ✅ | no |
+| pr3 | ✅ DAX106, names `[Margin %]` + 3 visuals | ✅ | ✅ | none | ✅ | no |
+
+pr1 found all three issues but skipped the template and custom-rules files on a small diff. We added a 4-step
+"every review, both modes" checklist to the top of SKILL.md. pr2 and pr3 ran after that change. A BadModel full review
+re-run after the change still scored 41/43 = 95% recall (6/7 judgment), so the checklist cost nothing in recall.
