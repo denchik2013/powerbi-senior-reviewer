@@ -127,13 +127,14 @@ Edit [`skills/powerbi-senior-reviewer/references/custom-rules.md`](skills/powerb
 Each rule is a short block in plain English:
 
 ```markdown
-### CUS011 · Measures that end with % use DIVIDE · Medium · DAX
+### CUS015 · Measures that end with % use DIVIDE · Medium · DAX
 **Rule:** …   **Why:** …   **Check:** …   **Bad → Good:** …   **Overrides:** DAX002   **Exceptions:** …
 ```
 
-Custom rules override the built-in ones when they conflict, and the review says "per team rule CUS011". The file ships
-with ten defaults (measure table, hidden keys, business-friendly names, time-intelligence suffixes, RLS via a mapping
-table, at most 8 visuals on executive pages…) drafted from public guidance: keep, change or delete them.
+Custom rules override the built-in ones when they conflict, and the review says "per team rule CUS015". The file ships
+with fourteen defaults (measure table, hidden keys, business-friendly names, Copilot-ready descriptions,
+time intelligence in one calculation group or UDF, incremental refresh that folds, TMDL/PBIR in git, theme colours,
+RLS via a mapping table, at most 8 visuals on executive pages…) drafted from current public guidance: keep, change or delete them.
 
 Turn off a built-in rule for a run: `static_checks.py --disable MOD006,GOV003`.
 
@@ -154,11 +155,11 @@ Measured on two fixtures in [`tests/fixtures`](tests/fixtures): `BadModel` with 
 ([list](tests/expected-issues.md)) and a clean `GoodModel`. Full method and per-run numbers in
 [`docs/EVALS.md`](docs/EVALS.md).
 
-| | Static scripts alone | Full skill (3 runs, final version) | Target |
+| | Static scripts alone | Full skill (final version) | Target |
 |---|---|---|---|
-| Recall on BadModel, all 43 issues | 84% | **98% · 98% · 91%** | ≥ 85% |
+| Recall on BadModel, all 43 issues | 84% | **95% mean** (5 runs: 98 · 98 · 91 · 95 · 95) | ≥ 85% |
 | Recall, the 7 judgment-only issues (wrong logic, grain, RLS reach…) | 0% | **86% · 86% · 86%** | – |
-| False findings on GoodModel | 0 | **0 · 0 · 0** | ≤ 3 |
+| False findings on GoodModel | 0 | **0 in 5 of 5 runs** | ≤ 3 |
 | Findings citing a real `file:line` | 100% | **100%** | 100% |
 | Project files modified during review | – | **none** | none |
 
@@ -168,7 +169,7 @@ not pattern-matchable.
 
 ## Rules
 
-38 deterministic rules + 17 judgment rules (plus 10 editable team rules), documented with *why it matters*, *bad → good* and *when it is not a problem*:
+38 deterministic rules + 17 judgment rules (plus 14 editable team rules), documented with *why it matters*, *bad → good* and *when it is not a problem*:
 [model](skills/powerbi-senior-reviewer/references/rules-model.md) ·
 [DAX](skills/powerbi-senior-reviewer/references/rules-dax.md) ·
 [Power Query](skills/powerbi-senior-reviewer/references/rules-power-query.md) ·

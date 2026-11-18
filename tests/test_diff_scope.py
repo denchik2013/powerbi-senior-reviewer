@@ -71,7 +71,7 @@ class DiffScopeTests(unittest.TestCase):
     def test_removed_measure_breaks_dax(self):
         p = self.repo / MEASURES
         text = p.read_text(encoding="utf-8")
-        text = re.sub(r"\t/// Gross margin in currency\.\n\tmeasure Margin = .*?\n\n", "", text, flags=re.S)
+        text = re.sub(r"\t/// Gross margin in USD[^\n]*\n\tmeasure Margin = .*?\n\n", "", text, flags=re.S)
         p.write_text(text, encoding="utf-8")
         self.commit()
         scope = build_scope(self.repo, "main", "feature")

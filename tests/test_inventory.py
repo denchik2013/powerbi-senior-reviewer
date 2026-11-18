@@ -69,7 +69,7 @@ class InventoryTests(unittest.TestCase):
 
     def test_measure_description(self):
         m = self.table(self.good, "_Measures")["measures"][0]
-        self.assertEqual(m["description"], "Net sales: quantity times net unit price, after discounts.")
+        self.assertEqual(m["description"], "Net sales in USD after discounts: quantity times net unit price, all order lines in the current filter.")
 
     def test_report_visuals(self):
         pages = self.bad["reports"][0]["pages"]

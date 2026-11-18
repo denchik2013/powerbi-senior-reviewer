@@ -134,3 +134,18 @@ The prompt was "review my changes on this branch against main". Reproduce with `
 pr1 found all three issues but skipped the template and custom-rules files on a small diff. We added a 4-step
 "every review, both modes" checklist to the top of SKILL.md. pr2 and pr3 ran after that change. A BadModel full review
 re-run after the change still scored 41/43 = 95% recall (6/7 judgment), so the checklist cost nothing in recall.
+
+## 4. After extending the custom rules (2026-11-18)
+
+Custom rules grew from 10 to 14: Copilot-ready descriptions, time intelligence centralised in a calculation group or
+UDFs, incremental-refresh filters that fold, TMDL/PBIR in git, theme colours. The GoodModel measure descriptions were
+made to meet the stricter CUS006. Re-run:
+
+| Run | Recall | J | Kept | Citations valid | Project modified | Missed / false positives |
+|---|---|---|---|---|---|---|
+| bad1 | 41/43 = 95% | 5/7 | 53 | 53/53 | no | B08 SEC101, B35 RPT103 |
+| good1 | – | – | **0** | – | no | – |
+| good2 | – | – | **0** | – | no | – |
+
+Across all 5 BadModel runs with the final SKILL.md (round 2, the PR-checklist rerun and this one), mean recall is
+**95%** (98, 98, 91, 95, 95). GoodModel produced **0 false findings in 5 of 5 runs**.

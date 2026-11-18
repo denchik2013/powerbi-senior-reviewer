@@ -20,8 +20,9 @@ Format for each rule:
 **Exceptions:** when it does not apply.
 ```
 
-> **Provenance.** v0.1 default set, drafted from widely used public guidance (SQLBI DAX style and naming notes, Microsoft
-> Learn Power BI guidance, the Tabular Editor naming-conventions article) and written in our own words. Edit, delete or
+> **Provenance.** Default set (reviewed 2026-11), drafted from widely used public guidance and written in our own words:
+> SQLBI DAX style, naming and UDF articles, Microsoft Learn Power BI guidance (including *Prepare your data for AI* and
+> incremental refresh), Tabular Editor's naming-conventions, BPA and UDF-vs-calculation-group articles. Edit, delete or
 > add rules to match your team: this file is meant to be owned by you.
 
 ---
@@ -80,13 +81,15 @@ another measure) whose name lacks the matching suffix.
 **Overrides:** none (adds to GOV003).
 **Exceptions:** none.
 
-### CUS006 · Every visible measure has a format string and a description · Low · Governance
+### CUS006 · Every visible measure has a format string and a business description · Low · Governance
 **Rule:** each visible measure has `formatString` (or `formatStringDefinition`) and a `///` description that says what
-it computes in business terms.
-**Why:** descriptions show as tooltips in the field list and feed Copilot; a missing format string shows raw decimals.
+it means in business terms: unit or currency, grain, and any filter it applies. A description that only repeats the
+formula (`Sum of Amount`) does not count.
+**Why:** descriptions are the tooltip in the field list and the main context Copilot and Fabric data agents read to pick
+the right measure; a missing format string shows raw decimals.
 **Check:** `inventory.json` → visible measures with empty `formatString`/`formatStringExpression` or empty `description`.
-**Bad → Good:** `measure 'Total Cost' = SUM(…)` with nothing else → `/// Cost of goods sold, quantity × unit cost.` +
-`formatString: \$#,0`.
+**Bad → Good:** `measure 'Total Cost' = SUM(…)` with nothing else → `/// Cost of goods sold in USD, quantity × unit
+cost, all order lines.` + `formatString: \$#,0`.
 **Overrides:** DAX004 and DAX005 (stricter: all visible measures, not only those used in the report).
 **Exceptions:** hidden helper measures.
 
@@ -124,7 +127,7 @@ in Desktop and the service, so roles that pass testing fail in production.
 **Exceptions:** static roles with no user identity at all (e.g. a "Europe only" role assigned to a group in the service).
 
 ### CUS010 · Executive pages: at most 8 data visuals · Medium · Report
-**Rule:** pages whose name starts with `Exec`, `Overview`, `Summary` or `Dashboard` have at most 8 data visuals
+**Rule:** pages whose name contains `Exec`, `Overview`, `Summary` or `Dashboard` have at most 8 data visuals
 (shapes, text boxes, images and buttons excluded).
 **Why:** leadership reads these in a meeting on a laptop; more than 8 visuals means the page has no single message.
 **Check:** `inventory.json` → page visuals excluding decorative types; compare with RPT001 output.
@@ -132,3 +135,53 @@ in Desktop and the service, so roles that pass testing fail in production.
 page.
 **Overrides:** RPT001 (threshold 8 instead of 15 for these pages).
 **Exceptions:** pages whose name ends with `Detail`.
+
+### CUS011 · Time-intelligence variants come from one place · Medium · DAX
+**Rule:** when three or more base measures each get the same time variants (PY, YTD, YoY %…), the logic lives in one
+place: a calculation group, or DAX user-defined functions (UDFs) called by thin measures. No copy-pasted
+`CALCULATE(…, SAMEPERIODLASTYEAR(…))` per base measure.
+**Why:** copy-pasted variants drift (one uses `DATEADD`, another `SAMEPERIODLASTYEAR`, a third forgets the date filter) and
+every new KPI adds five more measures to maintain. Calculation groups suit uniform patterns over many measures; UDFs suit
+more complex, parameterised logic that still needs to be a named measure.
+**Check:** measures calling time-intelligence functions; group them by base measure; ≥ 3 bases with the same wrapper and
+no `calculationGroup` table / `function` definitions in the model → finding.
+**Bad → Good:** `[Sales PY]`, `[Cost PY]`, `[Margin PY]`, `[Orders PY]` each with its own SAMEPERIODLASTYEAR →
+a `Time Intelligence` calculation group with a `PY` item, or a UDF `PY(m)` and `measure 'Sales PY' = PY([Sales Amount])`.
+**Overrides:** none (adds to DAX105).
+**Exceptions:** models where fewer than three base measures need time variants.
+
+### CUS012 · Incremental refresh filters fold to the source · High · Power Query
+**Rule:** a table with an incremental refresh policy (`refreshPolicy`, or M that uses `RangeStart` / `RangeEnd`) filters
+on `RangeStart`/`RangeEnd` directly after the navigation step, on a column of the source's date type, using `>=` on one
+bound and `<` on the other, before any added column, merge or type change.
+**Why:** if the filter does not fold, every partition refresh reads the whole source table and filters in the mashup
+engine: refreshes get slower instead of faster, and with `<=` on both bounds rows on the boundary load twice.
+**Check:** partition `source` / `refreshPolicy` M in the table's TMDL: the step order and the comparison operators.
+**Bad → Good:** `AddedYear = Table.AddColumn(…), Filtered = Table.SelectRows(AddedYear, each [OrderDate] >= RangeStart
+and [OrderDate] <= RangeEnd)` → `Filtered = Table.SelectRows(Navigation, each [OrderDate] >= RangeStart and [OrderDate] <
+RangeEnd)` as the first step after navigation.
+**Overrides:** PQ101 (raised to High for incremental-refresh tables).
+**Exceptions:** sources that cannot fold (files): incremental refresh there should be questioned, not tuned.
+
+### CUS013 · Source control uses the current text formats · Low · Governance
+**Rule:** projects in git store the model as TMDL (`definition/*.tmdl`, no `model.bim`) and the report as PBIR
+(`definition/` folder, no single `report.json`).
+**Why:** both are line-based and diff cleanly, so pull requests can be reviewed line by line (and by this skill). TMSL and
+the legacy report JSON produce huge one-line diffs and merge conflicts.
+**Check:** inventory warnings mentioning TMSL / `model.bim` or the legacy report format.
+**Bad → Good:** `Model.SemanticModel/model.bim` → Power BI Desktop → Options → Preview features → *Store semantic model
+using TMDL format*, then save; legacy report → save once with PBIR enabled.
+**Overrides:** none.
+**Exceptions:** none.
+
+### CUS014 · Colours come from the theme · Low · Report
+**Rule:** visuals do not hard-code colours (hex literals such as `'#1F77B4'` in `visual.json` objects); colours,
+fonts and default styles come from the report theme. Data-driven conditional formatting is fine.
+**Why:** hard-coded colours drift from page to page, break when the brand changes, and often fail contrast in dark or
+high-contrast modes; a theme changes them all at once.
+**Check:** `visual.json` files containing a `"Literal"` whose value is a hex colour, outside conditional-formatting rules.
+**Bad → Good:** a column chart with `"fill": {"solid": {"color": {"expr": {"Literal": {"Value": "'#118DFF'"}}}}}` →
+remove the override and set `dataColors` in the theme JSON.
+**Overrides:** none (sharpens RPT102).
+**Exceptions:** one-off highlight colours that carry meaning (e.g. a red target line) and are used consistently.
+
